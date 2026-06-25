@@ -1,47 +1,74 @@
 "use client";
 
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { Cpu, Activity, Wrench, Fuel, Database, ShieldAlert, ChevronRight } from "lucide-react";
 
 export default function Services() {
   const services = [
     {
+      code: "CALIBRATION // ECU",
       title: "ECU TUNING",
       desc: "Custom calibrated maps tailored to your engine specifications. Maximum torque, linear power, and OEM reliability.",
       icon: Cpu,
       stats: "Up to +45% Power Gain",
+      index: "01",
     },
     {
+      code: "TELEMETRY // TCU",
       title: "DSG / TCU TUNING",
       desc: "Optimised gearbox software: faster shift times, custom launch control, and increased clutch clamping pressure.",
       icon: Activity,
       stats: "Shift Times -150ms",
+      index: "02",
     },
     {
+      code: "HARDWARE // STAGE",
       title: "PERFORMANCE PARTS",
       desc: "Hardware upgrades engineered for maximum flow. Bolt-on intakes, exhausts, turbos, and cooling packages.",
       icon: Wrench,
       stats: "Akrapovič, RacingLine, etc.",
+      index: "03",
     },
     {
+      code: "CHEMICAL // FUEL",
       title: "RACE FUEL",
       desc: "High-octane racing fuel and additives. Stabilises high boost pressures and runs cooler combustion temperatures.",
       icon: Fuel,
       stats: "102 - 110+ Octane",
+      index: "04",
     },
     {
+      code: "DIAGNOSTICS // LOGS",
       title: "DIAGNOSTICS & LOGGING",
       desc: "Deep dealer-level scanning and live telemetry logging. Pre-tuning safety checks and real-time engine health analysis.",
       icon: Database,
       stats: "100Hz Logging Rate",
+      index: "05",
     },
     {
+      code: "PACKAGES // COMBINED",
       title: "TUNING PACKAGES",
       desc: "Turnkey Stage 1, 2 and 3 upgrades. Dyno-proven hardware and software bundles built for daily driving or track use.",
       icon: ShieldAlert,
       stats: "Complete Stage Packages",
+      index: "06",
     },
   ];
+
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const [mousePositions, setMousePositions] = useState<{ [key: number]: { x: number; y: number } }>({});
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>, index: number) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    setMousePositions((prev) => ({
+      ...prev,
+      [index]: {
+        x: e.clientX - rect.left,
+        y: e.clientY - rect.top,
+      },
+    }));
+  };
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -94,45 +121,74 @@ export default function Services() {
           viewport={{ once: true, margin: "-100px" }}
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
         >
-          {services.map((svc) => {
+          {services.map((svc, idx) => {
             const Icon = svc.icon;
+            const mPos = mousePositions[idx] || { x: 0, y: 0 };
+            const isHovered = hoveredIndex === idx;
+
             return (
               <motion.div
                 key={svc.title}
                 variants={cardVariants}
-                className="relative group rounded-xl border border-white/5 bg-glass p-8 flex flex-col justify-between min-h-[280px] transition-all duration-300 hover:border-[#E10600]/30 hover:bg-neutral-900/60 shadow-lg"
+                onMouseMove={(e) => handleMouseMove(e, idx)}
+                onMouseEnter={() => setHoveredIndex(idx)}
+                onMouseLeave={() => setHoveredIndex(null)}
+                className="relative group rounded-xl border border-white/5 bg-[#0a0a0a]/80 p-8 flex flex-col justify-between min-h-[300px] transition-all duration-500 hover:border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.6)] overflow-hidden backdrop-blur-md"
+                style={{
+                  background: isHovered
+                    ? `radial-gradient(350px circle at ${mPos.x}px ${mPos.y}px, rgba(225, 6, 0, 0.08), transparent 50%), rgba(10, 10, 10, 0.85)`
+                    : "rgba(5, 5, 5, 0.92)",
+                }}
               >
-                {/* Glowing laser border on hover */}
-                <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-[#E10600]/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+                {/* Subtle Carbon Fiber Texture Overlay */}
+                <div className="absolute inset-0 bg-carbon opacity-[0.03] group-hover:opacity-[0.06] transition-opacity duration-500 rounded-xl pointer-events-none" />
+
+                {/* Laser Bottom Accent Glow Line */}
+                <div className="absolute bottom-0 inset-x-0 h-[1.5px] bg-gradient-to-r from-transparent via-[#E10600] to-transparent scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-center pointer-events-none" />
+
+                {/* Precise Corner HUD Brackets */}
+                <div className="absolute top-2.5 left-2.5 w-2 h-2 border-t border-l border-white/[0.08] group-hover:border-[#E10600]/40 transition-colors duration-500" />
+                <div className="absolute top-2.5 right-2.5 w-2 h-2 border-t border-r border-white/[0.08] group-hover:border-[#E10600]/40 transition-colors duration-500" />
+                <div className="absolute bottom-2.5 left-2.5 w-2 h-2 border-b border-l border-white/[0.08] group-hover:border-[#E10600]/40 transition-colors duration-500" />
+                <div className="absolute bottom-2.5 right-2.5 w-2 h-2 border-b border-r border-white/[0.08] group-hover:border-[#E10600]/40 transition-colors duration-500" />
 
                 <div>
-                  {/* Icon Block */}
-                  <div className="inline-flex h-12 w-12 items-center justify-center rounded-lg bg-[#111] border border-neutral-800 text-neutral-400 group-hover:text-[#E10600] group-hover:border-[#E10600]/30 transition-all duration-300 mb-6">
-                    <Icon className="h-5 w-5" />
+                  {/* Top Metadata Header */}
+                  <div className="flex items-center justify-between mb-5 font-mono text-[9px] tracking-[0.2em] text-neutral-500 group-hover:text-neutral-400 transition-colors duration-300">
+                    <span>{svc.code}</span>
+                    <span className="text-white/20 group-hover:text-[#E10600]/60 font-black transition-colors duration-300">
+                      [{svc.index}]
+                    </span>
+                  </div>
+
+                  {/* Icon Block with inner ring & glow shadow */}
+                  <div className="relative inline-flex h-14 w-14 items-center justify-center rounded-xl bg-neutral-900 border border-neutral-800/80 text-neutral-400 group-hover:text-[#E10600] group-hover:border-[#E10600]/40 transition-all duration-500 mb-5 shadow-inner group-hover:shadow-[0_0_20px_rgba(225,6,0,0.15)]">
+                    <div className="absolute inset-0.5 rounded-lg border border-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+                    <Icon className="h-6 w-6 transform group-hover:scale-110 transition-transform duration-500" />
                   </div>
 
                   {/* Title */}
-                  <h3 className="text-lg font-black tracking-widest text-white uppercase font-display mb-3">
+                  <h3 className="text-lg font-black tracking-wider text-white uppercase font-display mb-3 transition-all duration-300 group-hover:text-glow-red">
                     {svc.title}
                   </h3>
 
                   {/* Description */}
-                  <p className="text-xs text-neutral-400 font-sans leading-relaxed tracking-wide mb-6 font-light">
+                  <p className="text-xs text-neutral-400 font-sans leading-relaxed tracking-wide mb-6 font-light group-hover:text-neutral-300 transition-colors duration-300">
                     {svc.desc}
                   </p>
                 </div>
 
                 {/* Footer specs / callout */}
-                <div className="border-t border-neutral-900 pt-4 flex items-center justify-between">
-                  <span className="text-[10px] font-bold tracking-widest text-[#E10600] font-display uppercase">
+                <div className="border-t border-white/5 pt-4 flex items-center justify-between group-hover:border-white/10 transition-colors duration-500">
+                  <span className="text-[10px] font-bold tracking-widest text-[#E10600] font-display uppercase drop-shadow-[0_0_8px_rgba(225,6,0,0.3)]">
                     {svc.stats}
                   </span>
                   <a
                     href="#booking"
-                    className="inline-flex items-center gap-1 text-[10px] font-bold tracking-widest text-neutral-400 group-hover:text-white transition-colors uppercase font-display"
+                    className="inline-flex items-center gap-1 text-[10px] font-bold tracking-widest text-neutral-400 group-hover:text-white transition-colors duration-300 uppercase font-display"
                   >
                     <span>CONFIGURE</span>
-                    <ChevronRight className="h-3 w-3 group-hover:translate-x-0.5 transition-transform" />
+                    <ChevronRight className="h-3 w-3 group-hover:translate-x-1 transition-transform" />
                   </a>
                 </div>
               </motion.div>

@@ -14,6 +14,7 @@ import WhyKSpec from "@/components/WhyKSpec";
 import BeforeAfter from "@/components/BeforeAfter";
 import BrandLogos from "@/components/BrandLogos";
 import PartsGrid from "@/components/PartsGrid";
+import PromoBanner from "@/components/PromoBanner";
 import Gallery from "@/components/Gallery";
 import Testimonials from "@/components/Testimonials";
 import Calculator from "@/components/Calculator";
@@ -69,6 +70,7 @@ export default function Home() {
         <BeforeAfter />
         <BrandLogos />
         <PartsGrid />
+        <PromoBanner />
         <Gallery />
         <Testimonials />
         <Calculator />

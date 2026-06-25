@@ -132,18 +132,18 @@ export default function Services() {
                 variants={cardVariants}
                 onMouseEnter={() => setHoveredIndex(idx)}
                 onMouseLeave={() => setHoveredIndex(null)}
-                className="relative group p-[1px] rounded-xl transition-all duration-500 shadow-2xl"
+                 className="relative group p-[1.5px] rounded-xl transition-all duration-500 shadow-[0_0_20px_rgba(225,6,0,0.2)] hover:shadow-[0_0_35px_rgba(225,6,0,0.45)]"
                 style={{
                   background: isHovered
-                    ? "linear-gradient(135deg, rgba(225, 6, 0, 0.8) 0%, rgba(255, 255, 255, 0.15) 50%, rgba(225, 6, 0, 0.4) 100%)"
-                    : "linear-gradient(135deg, rgba(225, 6, 0, 0.3) 0%, rgba(255, 255, 255, 0.03) 50%, rgba(225, 6, 0, 0.15) 100%)",
+                    ? "linear-gradient(135deg, #ff3333 0%, #E10600 50%, #a30000 100%)"
+                    : "linear-gradient(135deg, #E10600 0%, rgba(225, 6, 0, 0.25) 50%, #610000 100%)",
                 }}
               >
                 {/* Backing striking neon glow aura (permanently active, intensifies on hover) */}
                 <div 
-                  className="absolute -inset-2 rounded-2xl bg-[#E10600]/5 blur-xl transition-opacity duration-500 pointer-events-none -z-10" 
+                  className="absolute -inset-2 rounded-2xl bg-[#E10600]/10 blur-2xl transition-opacity duration-500 pointer-events-none -z-10" 
                   style={{
-                    opacity: isHovered ? 0.95 : 0.6,
+                    opacity: isHovered ? 1.0 : 0.75,
                   }}
                 />
 
@@ -152,8 +152,8 @@ export default function Services() {
                   className="relative w-full h-full rounded-[11px] bg-[#070707] p-8 flex flex-col justify-between min-h-[300px] overflow-hidden transition-all duration-500"
                   style={{
                     background: isHovered
-                      ? "radial-gradient(250px circle at 50% 50%, rgba(225, 6, 0, 0.07), transparent 70%), #070707"
-                      : "radial-gradient(250px circle at 50% 50%, rgba(225, 6, 0, 0.03), transparent 70%), #070707",
+                      ? "radial-gradient(250px circle at 50% 50%, rgba(225, 6, 0, 0.08), transparent 70%), #070707"
+                      : "radial-gradient(250px circle at 50% 50%, rgba(225, 6, 0, 0.04), transparent 70%), #070707",
                   }}
                 >
                   {/* Subtle Carbon Fiber Texture Overlay */}

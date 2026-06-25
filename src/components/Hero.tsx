@@ -21,6 +21,10 @@ export default function Hero() {
     const video = videoRef.current;
     if (!video) return;
 
+    // Set muted attribute directly on the DOM node to bypass React's muted attribute bug
+    video.setAttribute("muted", "true");
+    video.muted = true;
+
     const playVideo = () => {
       video.play().catch((err) => {
         console.log("Autoplay blocked, waiting for user interaction:", err);
@@ -306,7 +310,6 @@ export default function Hero() {
               loop
               muted={isMuted}
               playsInline
-              defaultMuted={true}
               className="object-cover w-full h-full select-none"
               poster="/hero_car.png"
             >

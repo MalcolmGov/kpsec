@@ -16,15 +16,16 @@ export default function Hero() {
     if (!ctx) return;
 
     let animationFrameId: number;
-    let width = 0;
-    let height = 0;
 
     const handleResize = () => {
       const rect = canvas.getBoundingClientRect();
-      width = canvas.width = rect.width;
-      height = canvas.height = rect.height;
+      if (rect.width > 0 && rect.height > 0) {
+        canvas.width = rect.width;
+        canvas.height = rect.height;
+      }
     };
 
+    // Initial resize call
     handleResize();
     window.addEventListener("resize", handleResize);
 
@@ -41,27 +42,27 @@ export default function Hero() {
       alpha: number;
       size: number;
 
-      constructor() {
-        this.x = width * 0.12;
-        this.y = height * 0.68;
-        this.vx = -0.5 - Math.random() * 1.5; // blows backwards
-        this.vy = -0.2 - Math.random() * 0.6; // drifts slightly up
-        this.alpha = Math.random() * 0.3 + 0.1;
-        this.size = Math.random() * 8 + 3;
+      constructor(w: number, h: number) {
+        this.x = w * 0.12;
+        this.y = h * 0.68;
+        this.vx = -0.6 - Math.random() * 1.6; // blows backwards
+        this.vy = -0.15 - Math.random() * 0.45; // drifts slightly up
+        this.alpha = Math.random() * 0.25 + 0.1;
+        this.size = Math.random() * 6 + 2;
       }
 
       update() {
         this.x += this.vx;
         this.y += this.vy;
-        this.size += 0.25; // expands
-        this.alpha -= 0.005; // fades out
+        this.size += 0.22; // expands
+        this.alpha -= 0.006; // fades out
       }
 
       draw(c: CanvasRenderingContext2D) {
         c.save();
         c.beginPath();
         const grad = c.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.size);
-        grad.addColorStop(0, `rgba(180, 180, 180, ${this.alpha})`);
+        grad.addColorStop(0, `rgba(160, 160, 160, ${this.alpha})`);
         grad.addColorStop(1, "rgba(0, 0, 0, 0)");
         c.fillStyle = grad;
         c.arc(this.x, this.y, this.size, 0, Math.PI * 2);
@@ -80,27 +81,27 @@ export default function Hero() {
       alpha: number;
       gravity: number;
 
-      constructor(wheelType: "front" | "rear") {
-        const wheelX = wheelType === "front" ? width * 0.742 : width * 0.258;
-        const wheelY = height * 0.598;
-        const radius = width * 0.115;
+      constructor(wheelType: "front" | "rear", w: number, h: number) {
+        const wheelX = wheelType === "front" ? w * 0.722 : w * 0.28;
+        const wheelY = h * 0.605;
+        const radius = w * 0.115;
 
         // Spawn at bottom contact point
         this.x = wheelX;
         this.y = wheelY + radius - 2;
         // Shoot backwards (to the left) at high speed
-        this.vx = -4 - Math.random() * 7;
-        this.vy = -1.5 + Math.random() * 3;
-        this.size = Math.random() * 1.8 + 0.5;
+        this.vx = -4.5 - Math.random() * 6.5;
+        this.vy = -1.2 + Math.random() * 2.5;
+        this.size = Math.random() * 1.5 + 0.5;
         this.alpha = 1;
-        this.gravity = 0.12;
+        this.gravity = 0.14;
       }
 
       update() {
         this.x += this.vx;
         this.y += this.vy;
         this.vy += this.gravity; // falls
-        this.alpha -= 0.025; // fades
+        this.alpha -= 0.028; // fades
       }
 
       draw(c: CanvasRenderingContext2D) {
@@ -119,22 +120,32 @@ export default function Hero() {
     let sparks: DynoSpark[] = [];
 
     const animate = () => {
-      ctx.clearRect(0, 0, width, height);
+      // If canvas is not yet laid out, retry and wait
+      if (canvas.width === 0 || canvas.height === 0) {
+        handleResize();
+        animationFrameId = requestAnimationFrame(animate);
+        return;
+      }
 
-      // 1. Draw glowing brake disc behind front wheel (X = 74.2%, Y = 59.8%, Rad = 11.5%)
-      const fx = width * 0.742;
-      const fy = height * 0.598;
-      const rx = width * 0.258;
-      const ry = height * 0.598;
-      const rad = width * 0.115;
+      const w = canvas.width;
+      const h = canvas.height;
 
-      brakePulse = Math.sin(Date.now() * 0.005) * 0.1 + 0.9; // pulse brakes
+      ctx.clearRect(0, 0, w, h);
 
-      // Glowing rotor backing
+      // Wheel layout coordinates calculated in real-time
+      const rx = w * 0.28;
+      const ry = h * 0.605;
+      const fx = w * 0.722;
+      const fy = h * 0.605;
+      const rad = w * 0.115;
+
+      // 1. Draw glowing brake disc behind front wheel
+      brakePulse = Math.sin(Date.now() * 0.005) * 0.15 + 0.85;
+
       ctx.save();
       const gradBrake = ctx.createRadialGradient(fx, fy, rad * 0.2, fx, fy, rad * 0.85);
-      gradBrake.addColorStop(0, `rgba(225, 6, 0, ${0.75 * brakePulse})`);
-      gradBrake.addColorStop(0.5, `rgba(255, 87, 34, ${0.5 * brakePulse})`);
+      gradBrake.addColorStop(0, `rgba(225, 6, 0, ${0.8 * brakePulse})`);
+      gradBrake.addColorStop(0.5, `rgba(255, 87, 34, ${0.55 * brakePulse})`);
       gradBrake.addColorStop(1, "rgba(0, 0, 0, 0)");
       ctx.fillStyle = gradBrake;
       ctx.beginPath();
@@ -185,7 +196,7 @@ export default function Hero() {
 
       // 3. Update & render smoke
       if (Math.random() > 0.4) {
-        smoke.push(new SmokeParticle());
+        smoke.push(new SmokeParticle(w, h));
       }
       smoke = smoke.filter((p) => {
         p.update();
@@ -198,12 +209,12 @@ export default function Hero() {
 
       // 4. Update & render sparks
       if (Math.random() > 0.2) {
-        sparks.push(new DynoSpark("front"));
-        sparks.push(new DynoSpark("rear"));
+        sparks.push(new DynoSpark("front", w, h));
+        sparks.push(new DynoSpark("rear", w, h));
       }
       sparks = sparks.filter((s) => {
         s.update();
-        if (s.alpha > 0 && s.y < height) {
+        if (s.alpha > 0 && s.y < h) {
           s.draw(ctx);
           return true;
         }

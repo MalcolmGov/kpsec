@@ -34,6 +34,26 @@ export default function Navbar() {
     }
   }, []);
 
+  const scrollToSection = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    if (href.startsWith("#")) {
+      e.preventDefault();
+      setIsOpen(false);
+      
+      const targetId = href.replace("#", "");
+      const element = document.getElementById(targetId);
+      if (element) {
+        const headerOffset = 80;
+        const elementPosition = element.getBoundingClientRect().top;
+        const offsetPosition = elementPosition + window.scrollY - headerOffset;
+
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: "smooth"
+        });
+      }
+    }
+  };
+
   const navItems = [
     { name: "SERVICES", href: "#services" },
     { name: "WHY K-SPEC", href: "#why-kspec" },
@@ -100,6 +120,7 @@ export default function Navbar() {
                 <a
                   key={item.name}
                   href={item.href}
+                  onClick={(e) => scrollToSection(e, item.href)}
                   className="relative text-xs font-bold tracking-widest text-neutral-400 hover:text-white transition-colors py-1 group font-display"
                 >
                   {item.name}
@@ -112,6 +133,7 @@ export default function Navbar() {
             <div className="hidden md:flex items-center gap-4">
               <a
                 href="#booking"
+                onClick={(e) => scrollToSection(e, "#booking")}
                 className="relative overflow-hidden group flex items-center gap-2 rounded-lg bg-neutral-950 border border-neutral-800 hover:border-[#E10600] px-4 py-2 text-xs font-bold tracking-widest uppercase transition-all duration-300 font-display text-white"
               >
                 <Zap className="h-3 w-3 text-[#E10600] animate-pulse" />
@@ -147,7 +169,7 @@ export default function Navbar() {
                   <a
                     key={item.name}
                     href={item.href}
-                    onClick={() => setIsOpen(false)}
+                    onClick={(e) => scrollToSection(e, item.href)}
                     className="block py-2 text-sm font-bold tracking-widest text-neutral-400 hover:text-white transition-colors font-display"
                   >
                     {item.name}
@@ -155,7 +177,7 @@ export default function Navbar() {
                 ))}
                 <a
                   href="#booking"
-                  onClick={() => setIsOpen(false)}
+                  onClick={(e) => scrollToSection(e, "#booking")}
                   className="flex items-center justify-center gap-2 rounded-lg bg-neutral-900 border border-neutral-800 py-3 text-sm font-bold tracking-widest uppercase text-white font-display"
                 >
                   <Zap className="h-4 w-4 text-[#E10600]" />

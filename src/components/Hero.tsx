@@ -16,6 +16,38 @@ export default function Hero() {
     }
   };
 
+  // Programmatic play and user interaction fallback for mobile autoplay policies
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    const playVideo = () => {
+      video.play().catch((err) => {
+        console.log("Autoplay blocked, waiting for user interaction:", err);
+      });
+    };
+
+    // Try to play immediately
+    playVideo();
+
+    // Play on first touch/click event if blocked (useful for mobile battery saver mode)
+    const handleInteraction = () => {
+      if (video.paused) {
+        video.play().catch(() => {});
+      }
+      window.removeEventListener("touchstart", handleInteraction);
+      window.removeEventListener("click", handleInteraction);
+    };
+
+    window.addEventListener("touchstart", handleInteraction);
+    window.addEventListener("click", handleInteraction);
+
+    return () => {
+      window.removeEventListener("touchstart", handleInteraction);
+      window.removeEventListener("click", handleInteraction);
+    };
+  }, []);
+
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -176,7 +208,7 @@ export default function Hero() {
   };
 
   return (
-    <section className="relative h-screen w-full overflow-hidden bg-[#050505] flex items-center">
+    <section className="relative min-h-screen lg:h-screen w-full overflow-hidden bg-[#050505] flex items-center pt-24 lg:pt-0">
       {/* Background Parallax & Textures */}
       <div className="absolute inset-0 bg-carbon opacity-30 z-0" />
       <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-[#050505]/40 z-10" />
@@ -190,7 +222,7 @@ export default function Hero() {
       <div className="absolute inset-x-0 bottom-[30%] h-[1px] bg-gradient-to-r from-transparent via-[#E10600] to-transparent shadow-[0_0_10px_#E10600] opacity-20 pointer-events-none animate-laser-sweep" style={{ animationDelay: "2s" }} />
 
       {/* Hero Content Layer */}
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 w-full z-20 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center pt-20">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 w-full z-20 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center pt-8 lg:pt-20">
         
         {/* Left Hand: High Impact Copy */}
         <motion.div
@@ -274,6 +306,7 @@ export default function Hero() {
               loop
               muted={isMuted}
               playsInline
+              defaultMuted={true}
               className="object-cover w-full h-full select-none"
               poster="/hero_car.png"
             >

@@ -133,63 +133,76 @@ export default function Services() {
                 onMouseMove={(e) => handleMouseMove(e, idx)}
                 onMouseEnter={() => setHoveredIndex(idx)}
                 onMouseLeave={() => setHoveredIndex(null)}
-                className="relative group rounded-xl border border-white/5 bg-[#0a0a0a]/80 p-8 flex flex-col justify-between min-h-[300px] transition-all duration-500 hover:border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.6)] overflow-hidden backdrop-blur-md"
+                className="relative group p-[1px] rounded-xl transition-all duration-500 shadow-2xl"
                 style={{
                   background: isHovered
-                    ? `radial-gradient(350px circle at ${mPos.x}px ${mPos.y}px, rgba(225, 6, 0, 0.08), transparent 50%), rgba(10, 10, 10, 0.85)`
-                    : "rgba(5, 5, 5, 0.92)",
+                    ? `radial-gradient(180px circle at ${mPos.x}px ${mPos.y}px, rgba(225, 6, 0, 0.75), transparent 75%), rgba(255, 255, 255, 0.08)`
+                    : "rgba(255, 255, 255, 0.05)",
                 }}
               >
-                {/* Subtle Carbon Fiber Texture Overlay */}
-                <div className="absolute inset-0 bg-carbon opacity-[0.03] group-hover:opacity-[0.06] transition-opacity duration-500 rounded-xl pointer-events-none" />
+                {/* Backing striking neon glow aura */}
+                <div className="absolute -inset-2 rounded-2xl bg-[#E10600]/10 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none -z-10" />
 
-                {/* Laser Bottom Accent Glow Line */}
-                <div className="absolute bottom-0 inset-x-0 h-[1.5px] bg-gradient-to-r from-transparent via-[#E10600] to-transparent scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-center pointer-events-none" />
+                {/* Inner Card Content */}
+                <div
+                  className="relative w-full h-full rounded-[11px] bg-[#070707] p-8 flex flex-col justify-between min-h-[300px] overflow-hidden transition-all duration-500"
+                  style={{
+                    background: isHovered
+                      ? `radial-gradient(300px circle at ${mPos.x}px ${mPos.y}px, rgba(225, 6, 0, 0.09), transparent 70%), rgba(7, 7, 7, 0.95)`
+                      : "rgba(7, 7, 7, 0.98)",
+                  }}
+                >
+                  {/* Subtle Carbon Fiber Texture Overlay */}
+                  <div className="absolute inset-0 bg-carbon opacity-[0.03] group-hover:opacity-[0.06] transition-opacity duration-500 rounded-[11px] pointer-events-none" />
 
-                {/* Precise Corner HUD Brackets */}
-                <div className="absolute top-2.5 left-2.5 w-2 h-2 border-t border-l border-white/[0.08] group-hover:border-[#E10600]/40 transition-colors duration-500" />
-                <div className="absolute top-2.5 right-2.5 w-2 h-2 border-t border-r border-white/[0.08] group-hover:border-[#E10600]/40 transition-colors duration-500" />
-                <div className="absolute bottom-2.5 left-2.5 w-2 h-2 border-b border-l border-white/[0.08] group-hover:border-[#E10600]/40 transition-colors duration-500" />
-                <div className="absolute bottom-2.5 right-2.5 w-2 h-2 border-b border-r border-white/[0.08] group-hover:border-[#E10600]/40 transition-colors duration-500" />
+                  {/* Laser Bottom Accent Glow Line */}
+                  <div className="absolute bottom-0 inset-x-0 h-[1.5px] bg-gradient-to-r from-transparent via-[#E10600] to-transparent scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-center pointer-events-none" />
 
-                <div>
-                  {/* Top Metadata Header */}
-                  <div className="flex items-center justify-between mb-5 font-mono text-[9px] tracking-[0.2em] text-neutral-500 group-hover:text-neutral-400 transition-colors duration-300">
-                    <span>{svc.code}</span>
-                    <span className="text-white/20 group-hover:text-[#E10600]/60 font-black transition-colors duration-300">
-                      [{svc.index}]
+                  {/* Precise Corner HUD Brackets */}
+                  <div className="absolute top-2.5 left-2.5 w-2 h-2 border-t border-l border-white/[0.08] group-hover:border-[#E10600]/40 transition-colors duration-500" />
+                  <div className="absolute top-2.5 right-2.5 w-2 h-2 border-t border-r border-white/[0.08] group-hover:border-[#E10600]/40 transition-colors duration-500" />
+                  <div className="absolute bottom-2.5 left-2.5 w-2 h-2 border-b border-l border-white/[0.08] group-hover:border-[#E10600]/40 transition-colors duration-500" />
+                  <div className="absolute bottom-2.5 right-2.5 w-2 h-2 border-b border-r border-white/[0.08] group-hover:border-[#E10600]/40 transition-colors duration-500" />
+
+                  <div>
+                    {/* Top Metadata Header */}
+                    <div className="flex items-center justify-between mb-5 font-mono text-[9px] tracking-[0.2em] text-neutral-500 group-hover:text-neutral-400 transition-colors duration-300">
+                      <span>{svc.code}</span>
+                      <span className="text-white/20 group-hover:text-[#E10600]/60 font-black transition-colors duration-300">
+                        [{svc.index}]
+                      </span>
+                    </div>
+
+                    {/* Icon Block with inner ring & glow shadow */}
+                    <div className="relative inline-flex h-14 w-14 items-center justify-center rounded-xl bg-neutral-900 border border-neutral-800/80 text-neutral-400 group-hover:text-[#E10600] group-hover:border-[#E10600]/40 transition-all duration-500 mb-5 shadow-inner group-hover:shadow-[0_0_20px_rgba(225,6,0,0.15)]">
+                      <div className="absolute inset-0.5 rounded-lg border border-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+                      <Icon className="h-6 w-6 transform group-hover:scale-110 transition-transform duration-500" />
+                    </div>
+
+                    {/* Title */}
+                    <h3 className="text-lg font-black tracking-wider text-white uppercase font-display mb-3 transition-all duration-300 group-hover:text-glow-red">
+                      {svc.title}
+                    </h3>
+
+                    {/* Description */}
+                    <p className="text-xs text-neutral-400 font-sans leading-relaxed tracking-wide mb-6 font-light group-hover:text-neutral-300 transition-colors duration-300">
+                      {svc.desc}
+                    </p>
+                  </div>
+
+                  {/* Footer specs / callout */}
+                  <div className="border-t border-white/5 pt-4 flex items-center justify-between group-hover:border-white/10 transition-colors duration-500">
+                    <span className="text-[10px] font-bold tracking-widest text-[#E10600] font-display uppercase drop-shadow-[0_0_8px_rgba(225,6,0,0.3)]">
+                      {svc.stats}
                     </span>
+                    <a
+                      href="#booking"
+                      className="inline-flex items-center gap-1 text-[10px] font-bold tracking-widest text-neutral-400 group-hover:text-white transition-colors duration-300 uppercase font-display"
+                    >
+                      <span>CONFIGURE</span>
+                      <ChevronRight className="h-3 w-3 group-hover:translate-x-1 transition-transform" />
+                    </a>
                   </div>
-
-                  {/* Icon Block with inner ring & glow shadow */}
-                  <div className="relative inline-flex h-14 w-14 items-center justify-center rounded-xl bg-neutral-900 border border-neutral-800/80 text-neutral-400 group-hover:text-[#E10600] group-hover:border-[#E10600]/40 transition-all duration-500 mb-5 shadow-inner group-hover:shadow-[0_0_20px_rgba(225,6,0,0.15)]">
-                    <div className="absolute inset-0.5 rounded-lg border border-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
-                    <Icon className="h-6 w-6 transform group-hover:scale-110 transition-transform duration-500" />
-                  </div>
-
-                  {/* Title */}
-                  <h3 className="text-lg font-black tracking-wider text-white uppercase font-display mb-3 transition-all duration-300 group-hover:text-glow-red">
-                    {svc.title}
-                  </h3>
-
-                  {/* Description */}
-                  <p className="text-xs text-neutral-400 font-sans leading-relaxed tracking-wide mb-6 font-light group-hover:text-neutral-300 transition-colors duration-300">
-                    {svc.desc}
-                  </p>
-                </div>
-
-                {/* Footer specs / callout */}
-                <div className="border-t border-white/5 pt-4 flex items-center justify-between group-hover:border-white/10 transition-colors duration-500">
-                  <span className="text-[10px] font-bold tracking-widest text-[#E10600] font-display uppercase drop-shadow-[0_0_8px_rgba(225,6,0,0.3)]">
-                    {svc.stats}
-                  </span>
-                  <a
-                    href="#booking"
-                    className="inline-flex items-center gap-1 text-[10px] font-bold tracking-widest text-neutral-400 group-hover:text-white transition-colors duration-300 uppercase font-display"
-                  >
-                    <span>CONFIGURE</span>
-                    <ChevronRight className="h-3 w-3 group-hover:translate-x-1 transition-transform" />
-                  </a>
                 </div>
               </motion.div>
             );

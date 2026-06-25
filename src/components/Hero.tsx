@@ -1,11 +1,20 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
-import { ChevronRight, Play } from "lucide-react";
+import { ChevronRight, Play, Volume2, VolumeX } from "lucide-react";
 
 export default function Hero() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [isMuted, setIsMuted] = useState(true);
+
+  const toggleMute = () => {
+    if (videoRef.current) {
+      videoRef.current.muted = !videoRef.current.muted;
+      setIsMuted(videoRef.current.muted);
+    }
+  };
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -260,9 +269,10 @@ export default function Hero() {
 
             {/* Loop video showing premium supercar in action */}
             <video
+              ref={videoRef}
               autoPlay
               loop
-              muted
+              muted={isMuted}
               playsInline
               className="object-cover w-full h-full select-none"
               poster="/hero_car.png"
@@ -271,6 +281,19 @@ export default function Hero() {
               <source src="https://player.vimeo.com/external/333429966.hd.mp4?s=a2540aa7637b9b699b2868d0cb8d76357ca85623&profile_id=175" type="video/mp4" />
               <source src="https://assets.mixkit.co/videos/preview/mixkit-exhaust-pipe-of-a-sports-car-releasing-fire-34282-large.mp4" type="video/mp4" />
             </video>
+
+            {/* Mute/Unmute Audio Toggle Overlay */}
+            <button
+              onClick={toggleMute}
+              className="absolute bottom-4 right-4 z-30 flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-black/40 hover:bg-black/60 backdrop-blur-md text-white transition-all duration-300 shadow-lg hover:scale-105"
+              title={isMuted ? "Unmute Engine Sound" : "Mute Sound"}
+            >
+              {isMuted ? (
+                <VolumeX className="h-4 w-4 text-neutral-400" />
+              ) : (
+                <Volume2 className="h-4 w-4 text-[#E10600] animate-pulse" />
+              )}
+            </button>
 
             {/* Foreground sparks and dust drifting over the video */}
             <canvas ref={canvasRef} className="absolute inset-0 pointer-events-none z-20 mix-blend-screen" />

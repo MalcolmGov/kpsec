@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import Image from "next/image";
 import { motion } from "framer-motion";
 import { ChevronRight, Play } from "lucide-react";
 
@@ -16,63 +15,22 @@ export default function Hero() {
     if (!ctx) return;
 
     let animationFrameId: number;
+    let width = 0;
+    let height = 0;
 
     const handleResize = () => {
       const rect = canvas.getBoundingClientRect();
       if (rect.width > 0 && rect.height > 0) {
-        canvas.width = rect.width;
-        canvas.height = rect.height;
+        width = canvas.width = rect.width;
+        height = canvas.height = rect.height;
       }
     };
 
-    // Initial resize call
     handleResize();
     window.addEventListener("resize", handleResize);
 
-    // Easing angle for wheel rotation
-    let wheelAngle = 0;
-    let brakePulse = 0;
-
-    // Particle class for exhaust smoke (venting from bottom left tailpipe: X ~12%, Y ~68%)
-    class SmokeParticle {
-      x: number;
-      y: number;
-      vx: number;
-      vy: number;
-      alpha: number;
-      size: number;
-
-      constructor(w: number, h: number) {
-        this.x = w * 0.12;
-        this.y = h * 0.68;
-        this.vx = -0.6 - Math.random() * 1.6; // blows backwards
-        this.vy = -0.15 - Math.random() * 0.45; // drifts slightly up
-        this.alpha = Math.random() * 0.25 + 0.1;
-        this.size = Math.random() * 6 + 2;
-      }
-
-      update() {
-        this.x += this.vx;
-        this.y += this.vy;
-        this.size += 0.22; // expands
-        this.alpha -= 0.006; // fades out
-      }
-
-      draw(c: CanvasRenderingContext2D) {
-        c.save();
-        c.beginPath();
-        const grad = c.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.size);
-        grad.addColorStop(0, `rgba(160, 160, 160, ${this.alpha})`);
-        grad.addColorStop(1, "rgba(0, 0, 0, 0)");
-        c.fillStyle = grad;
-        c.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-        c.fill();
-        c.restore();
-      }
-    }
-
-    // Spark particles spraying from the contact point of both wheels
-    class DynoSpark {
+    // Foreground sparks drifting in front of the video
+    class Spark {
       x: number;
       y: number;
       vx: number;
@@ -81,34 +39,37 @@ export default function Hero() {
       alpha: number;
       gravity: number;
 
-      constructor(wheelType: "front" | "rear", w: number, h: number) {
-        const wheelX = wheelType === "front" ? w * 0.722 : w * 0.28;
-        const wheelY = h * 0.605;
-        const radius = w * 0.115;
-
-        // Spawn at bottom contact point
-        this.x = wheelX;
-        this.y = wheelY + radius - 2;
-        // Shoot backwards (to the left) at high speed
-        this.vx = -4.5 - Math.random() * 6.5;
-        this.vy = -1.2 + Math.random() * 2.5;
-        this.size = Math.random() * 1.5 + 0.5;
-        this.alpha = 1;
-        this.gravity = 0.14;
+      constructor() {
+        // Spawn sparks from the bottom area of the frame
+        this.x = Math.random() * width;
+        this.y = height - Math.random() * 50;
+        this.vx = (Math.random() - 0.5) * 1.5 - 1.0; // drift slightly left
+        this.vy = -1 - Math.random() * 3;
+        this.size = Math.random() * 1.6 + 0.5;
+        this.alpha = Math.random() * 0.5 + 0.5;
+        this.gravity = 0.02;
       }
 
       update() {
         this.x += this.vx;
         this.y += this.vy;
-        this.vy += this.gravity; // falls
-        this.alpha -= 0.028; // fades
+        this.vy += this.gravity;
+        this.alpha -= 0.012;
+
+        if (this.alpha <= 0 || this.y > height) {
+          this.x = Math.random() * width;
+          this.y = height - Math.random() * 20;
+          this.vx = (Math.random() - 0.5) * 1.5 - 1.0;
+          this.vy = -1 - Math.random() * 3;
+          this.alpha = Math.random() * 0.5 + 0.5;
+        }
       }
 
       draw(c: CanvasRenderingContext2D) {
         c.save();
         c.beginPath();
-        c.fillStyle = `rgba(255, 87, 34, ${this.alpha})`; // Hot orange sparks
-        c.shadowColor = "rgba(225, 6, 0, 0.9)";
+        c.fillStyle = `rgba(255, 87, 34, ${this.alpha})`; // Orange dyno sparks
+        c.shadowColor = "rgba(225, 6, 0, 0.8)";
         c.shadowBlur = 4;
         c.arc(this.x, this.y, this.size, 0, Math.PI * 2);
         c.fill();
@@ -116,109 +77,66 @@ export default function Hero() {
       }
     }
 
-    let smoke: SmokeParticle[] = [];
-    let sparks: DynoSpark[] = [];
+    // Drifting smoke dust particles
+    class Dust {
+      x: number;
+      y: number;
+      vx: number;
+      vy: number;
+      size: number;
+      alpha: number;
+
+      constructor() {
+        this.x = Math.random() * width;
+        this.y = Math.random() * height;
+        this.vx = -0.1 - Math.random() * 0.3;
+        this.vy = -0.1 - Math.random() * 0.2;
+        this.size = Math.random() * 30 + 10;
+        this.alpha = Math.random() * 0.06 + 0.02;
+      }
+
+      update() {
+        this.x += this.vx;
+        this.y += this.vy;
+        if (this.x < -this.size) this.x = width + this.size;
+        if (this.y < -this.size) this.y = height + this.size;
+      }
+
+      draw(c: CanvasRenderingContext2D) {
+        c.save();
+        c.beginPath();
+        const grad = c.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.size);
+        grad.addColorStop(0, `rgba(255, 255, 255, ${this.alpha})`);
+        grad.addColorStop(1, "rgba(0, 0, 0, 0)");
+        c.fillStyle = grad;
+        c.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        c.fill();
+        c.restore();
+      }
+    }
+
+    const sparks: Spark[] = Array.from({ length: 15 }, () => new Spark());
+    const dustParticles: Dust[] = Array.from({ length: 20 }, () => new Dust());
 
     const animate = () => {
-      // If canvas is not yet laid out, retry and wait
       if (canvas.width === 0 || canvas.height === 0) {
         handleResize();
         animationFrameId = requestAnimationFrame(animate);
         return;
       }
 
-      const w = canvas.width;
-      const h = canvas.height;
+      ctx.clearRect(0, 0, width, height);
 
-      ctx.clearRect(0, 0, w, h);
-
-      // Wheel layout coordinates calculated in real-time
-      const rx = w * 0.28;
-      const ry = h * 0.605;
-      const fx = w * 0.722;
-      const fy = h * 0.605;
-      const rad = w * 0.115;
-
-      // 1. Draw glowing brake disc behind front wheel
-      brakePulse = Math.sin(Date.now() * 0.005) * 0.15 + 0.85;
-
-      ctx.save();
-      const gradBrake = ctx.createRadialGradient(fx, fy, rad * 0.2, fx, fy, rad * 0.85);
-      gradBrake.addColorStop(0, `rgba(225, 6, 0, ${0.8 * brakePulse})`);
-      gradBrake.addColorStop(0.5, `rgba(255, 87, 34, ${0.55 * brakePulse})`);
-      gradBrake.addColorStop(1, "rgba(0, 0, 0, 0)");
-      ctx.fillStyle = gradBrake;
-      ctx.beginPath();
-      ctx.arc(fx, fy, rad * 0.9, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.restore();
-
-      // 2. Draw spinning wheels overlays
-      wheelAngle += 0.35; // speed of wheel rotation
-
-      const drawSpinningWheel = (cx: number, cy: number, radius: number) => {
-        ctx.save();
-        ctx.translate(cx, cy);
-        ctx.rotate(wheelAngle);
-
-        // Radial blurred spokes (10 spoke alloy wheel representation)
-        ctx.strokeStyle = "rgba(255, 255, 255, 0.18)";
-        ctx.lineWidth = 2.5;
-        for (let i = 0; i < 10; i++) {
-          ctx.rotate((Math.PI * 2) / 10);
-          ctx.beginPath();
-          ctx.moveTo(0, 0);
-          ctx.lineTo(radius * 0.88, 0);
-          ctx.stroke();
-        }
-
-        // Concentric rotation rings simulating wheel lip speed
-        ctx.strokeStyle = "rgba(255, 255, 255, 0.06)";
-        ctx.lineWidth = 1;
-        ctx.beginPath();
-        ctx.arc(0, 0, radius * 0.5, 0, Math.PI * 2);
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.arc(0, 0, radius * 0.75, 0, Math.PI * 2);
-        ctx.stroke();
-
-        // Dark hub cap
-        ctx.fillStyle = "rgba(10, 10, 10, 0.92)";
-        ctx.beginPath();
-        ctx.arc(0, 0, radius * 0.28, 0, Math.PI * 2);
-        ctx.fill();
-
-        ctx.restore();
-      };
-
-      drawSpinningWheel(rx, ry, rad);
-      drawSpinningWheel(fx, fy, rad);
-
-      // 3. Update & render smoke
-      if (Math.random() > 0.4) {
-        smoke.push(new SmokeParticle(w, h));
-      }
-      smoke = smoke.filter((p) => {
-        p.update();
-        if (p.alpha > 0) {
-          p.draw(ctx);
-          return true;
-        }
-        return false;
+      // Render drifting smoke dust in background
+      dustParticles.forEach((d) => {
+        d.update();
+        d.draw(ctx);
       });
 
-      // 4. Update & render sparks
-      if (Math.random() > 0.2) {
-        sparks.push(new DynoSpark("front", w, h));
-        sparks.push(new DynoSpark("rear", w, h));
-      }
-      sparks = sparks.filter((s) => {
+      // Render sparks in foreground
+      sparks.forEach((s) => {
         s.update();
-        if (s.alpha > 0 && s.y < h) {
-          s.draw(ctx);
-          return true;
-        }
-        return false;
+        s.draw(ctx);
       });
 
       animationFrameId = requestAnimationFrame(animate);
@@ -334,28 +252,28 @@ export default function Hero() {
           transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
           className="lg:col-span-6 relative flex justify-center items-center w-full min-h-[300px] sm:min-h-[450px]"
         >
-          {/* Glass frame container around the image - REMOVED animate-heat-haze to ensure 100% sharp crisp image */}
-          <div className="relative w-full max-w-[450px] aspect-square rounded-2xl border border-white/5 bg-glass overflow-hidden shadow-2xl flex items-center justify-center">
+          {/* Glass frame container around the video (cinematic widescreen) */}
+          <div className="relative w-full max-w-[600px] aspect-video rounded-2xl border border-white/10 bg-glass overflow-hidden shadow-2xl flex items-center justify-center">
             
             {/* Matte carbon diagonal line design overlay */}
-            <div className="absolute inset-0 bg-gradient-to-tr from-[#050505]/40 to-transparent z-10 pointer-events-none" />
+            <div className="absolute inset-0 bg-gradient-to-tr from-[#050505]/50 to-transparent z-10 pointer-events-none" />
 
-            {/* Glowing spot overlay corresponding to brake discs */}
-            <div className="absolute bottom-[22%] right-[22%] z-20 h-10 w-10 rounded-full bg-[#E10600] opacity-40 blur-md pointer-events-none animate-brake-glow" />
+            {/* Loop video showing premium supercar in action */}
+            <video
+              autoPlay
+              loop
+              muted
+              playsInline
+              className="object-cover w-full h-full select-none"
+              poster="/hero_car.png"
+            >
+              <source src="/hero_video.mp4" type="video/mp4" />
+              <source src="https://player.vimeo.com/external/333429966.hd.mp4?s=a2540aa7637b9b699b2868d0cb8d76357ca85623&profile_id=175" type="video/mp4" />
+              <source src="https://assets.mixkit.co/videos/preview/mixkit-exhaust-pipe-of-a-sports-car-releasing-fire-34282-large.mp4" type="video/mp4" />
+            </video>
 
-            {/* Actual premium AI car photo - prioritized quality parameters to prevent blurriness */}
-            <Image
-              src="/hero_car.png"
-              alt="K-Spec Premium GT3 Performance Vehicle"
-              fill
-              className="object-cover scale-100 select-none"
-              priority
-              quality={100}
-              id="hero-car-image"
-            />
-
-            {/* Interactive visual canvas overlay inside the container, keeping it perfectly aligned with the car */}
-            <canvas ref={canvasRef} className="absolute inset-0 pointer-events-none z-30 mix-blend-screen" />
+            {/* Foreground sparks and dust drifting over the video */}
+            <canvas ref={canvasRef} className="absolute inset-0 pointer-events-none z-20 mix-blend-screen" />
           </div>
 
           {/* Neon laser lights accenting the frame borders */}
